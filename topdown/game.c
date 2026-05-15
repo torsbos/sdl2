@@ -1,38 +1,26 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_image.h>
+#include "player.h"
+#include "config.h"
 
-#define TITLE             "game"
-#define WINDOW_WIDTH      800
-#define WINDOW_HEIGHT     600
-#define FPS               60
-
-#define FONT_SIZE         16
-
-#define PLAYER_SPEED      4.0f
-#define SPRINT_MULTIPLIER 2.0f
-
-#define PLAYER_WIDTH      32
-#define PLAYER_HEIGHT     64
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
-TTF_Font *text_font = NULL;
+
+TTF_Font *textFont = NULL;
+SDL_Texture *textTexture = NULL;
+SDL_Rect textRect;
+SDL_Color textColor = {255,255,255,255};
+
+SDL_Texture *spriteTexture = NULL;
+SDL_Surface *spriteSurface = NULL;
 
 
-struct player {
-
-  float x, y; 
-  bool moveLeft, moveRight, moveUp, moveDown;
-  bool sprinting;
-  int facing;
-
-} player;
-
-
-int shouldQuit = 0;
+bool shouldQuit = false;
+bool showDebug = false;
 
 
 bool initSDL(){
@@ -50,7 +38,6 @@ bool initSDL(){
     WINDOW_HEIGHT,
     SDL_WINDOW_SHOWN
   );
-
   if (!window) {
     fprintf(stderr, "Error creating window: %s\n", SDL_GetError());
     return true;
@@ -63,19 +50,91 @@ bool initSDL(){
   }
 
   if (TTF_Init()) {
-    fprintf(stderr, "Error initializing TTF: %s\n", SDL_GetError());
+    fprintf(stderr, "Error initializing TTF: %s\n", TTF_GetError());
     return true;
   }
 
+  textFont = TTF_OpenFont("regular.ttf", FONT_SIZE);
+  if (!textFont) {
+    fprintf(stderr, "Error loading font: %s\n", TTF_GetError());
+    return true;
+  }
+
+  if (IMG_Init(IMG_INIT_PNG) < 0)
+  {
+    fprintf(stderr, "Error initializing IMG: %s\n", IMG_GetError());
+    return true;
+  }
+
+  spriteSurface = IMG_Load("sprite.png");
+  if (!spriteSurface) {
+    fprintf(stderr, "Error loading sprite to surface: %s\n", IMG_GetError());
+    return true;
+  }
+
+  spriteTexture = 
+    SDL_CreateTextureFromSurface(renderer, spriteSurface);
+  if (!spriteTexture) {
+    fprintf(stderr, "Error creating sprite texture from surface: %s\n", IMG_GetError());
+    return true;
+  }
+
+  SDL_FreeSurface(spriteSurface);
 
 return false;
 }
 
+void updateDebugText() {
+
+    char buffer[128];
+
+    snprintf(
+        buffer,
+        sizeof(buffer),
+        "X: %.0f  Y: %.0f",
+        player.x,
+        player.y
+    );
+
+    SDL_Surface* textSurface =
+        TTF_RenderText_Solid(textFont, buffer, textColor);
+
+    if (!textSurface) {
+        fprintf(stderr, "Text surface error: %s\n", TTF_GetError());
+        return;
+    }
+
+    if (textTexture) {
+        SDL_DestroyTexture(textTexture);
+    }
+
+    textTexture =
+        SDL_CreateTextureFromSurface(renderer, textSurface);
+
+    if (!textTexture) {
+        fprintf(stderr, "Texture error: %s\n", SDL_GetError());
+        SDL_FreeSurface(textSurface);
+        return;
+    }
+
+    textRect.x = 20;
+    textRect.y = 20;
+    textRect.w = textSurface->w;
+    textRect.h = textSurface->h;
+
+    SDL_FreeSurface(textSurface);
+}
+
 void cleanup(){
 
+
+  TTF_CloseFont(textFont);
+  SDL_DestroyTexture(textTexture);
+  SDL_DestroyTexture(spriteTexture);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   TTF_Quit();
+  IMG_Quit();
   SDL_Quit();
 
 }
@@ -83,8 +142,7 @@ void cleanup(){
 void setupLevel(){
   // TODO: add tilemap?
 
-  player.x = (WINDOW_WIDTH / 2) - PLAYER_WIDTH;
-  player.y = (WINDOW_HEIGHT / 2) - PLAYER_HEIGHT;
+  playerSetup();
 
 }
 
@@ -95,103 +153,57 @@ void processInput(){
   while (SDL_PollEvent(&event)){
     switch (event.type) {
       case SDL_QUIT:
-        shouldQuit = 1;
+        shouldQuit = true;
         break;
       case SDL_KEYUP:
         if (event.key.keysym.sym == SDLK_ESCAPE)
-          shouldQuit = 1;
+          shouldQuit = true;
         if (event.key.keysym.sym == SDLK_q)
-          shouldQuit = 1;
+          shouldQuit = true;
         break;
+      case SDL_KEYDOWN:
+        if (!event.key.repeat)
+          if (event.key.keysym.sym == SDLK_n)
+            showDebug = !showDebug;
     }
   }
   const Uint8 *state = SDL_GetKeyboardState(NULL);
 
-  player.moveUp = state[SDL_SCANCODE_W];
-  player.moveDown = state[SDL_SCANCODE_S];
-  player.moveLeft = state[SDL_SCANCODE_A];
-  player.moveRight = state[SDL_SCANCODE_D];
-  player.sprinting = state[SDL_SCANCODE_LSHIFT];
+  playerInput(state);
 }
 
 
 void update(){
   // TODO: collision detection, on other objects 
   // TODO: collision on tilemap?
-  // TODO: debug text with player coords
 
 
-  //player movement
+  //player movement and collision
 
-
-
-  if (player.moveUp) {
-    player.facing = 1;
-    if (player.sprinting) {
-      player.y -= PLAYER_SPEED * SPRINT_MULTIPLIER;
-    } else
-      player.y -= PLAYER_SPEED;
-  }
-  if (player.moveDown) {
-    player.facing = 2;
-    if (player.sprinting) {
-      player.y += PLAYER_SPEED * SPRINT_MULTIPLIER;
-    } else
-      player.y += PLAYER_SPEED;
-  }
-  if (player.moveLeft) {
-    player.facing = 3;
-    if (player.sprinting) {
-      player.x -= PLAYER_SPEED * SPRINT_MULTIPLIER;
-    } else
-      player.x -= PLAYER_SPEED;
-  }
-  if (player.moveRight) {
-    player.facing = 4;
-    if (player.sprinting) {
-      player.x += PLAYER_SPEED * SPRINT_MULTIPLIER;
-    } else
-      player.x += PLAYER_SPEED;
-  }
+  playerUpdate(); 
 
   
-  //border collision
-
-
-  if (player.y <= 0) {
-    player.y = 0;
-  }
-  if (player.y >= WINDOW_HEIGHT - PLAYER_HEIGHT) {
-    player.y = WINDOW_HEIGHT - PLAYER_HEIGHT;
-  }
-  if (player.x <= 0) {
-    player.x = 0;
-  }
-  if (player.x >= WINDOW_WIDTH - PLAYER_WIDTH) {
-    player.x = WINDOW_WIDTH - PLAYER_WIDTH;
+  // debug text
+  if (showDebug) { updateDebugText(); }
+  if (!showDebug && textTexture) {
+    SDL_DestroyTexture(textTexture);
+    textTexture = NULL;
   }
 
   SDL_Delay(1000 / FPS);
 }
 
 void render(){
-  // TODO: render player sprite
   // TODO: render tile map
-  // TODO: render debug text
 
   SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
   SDL_RenderClear(renderer);
 
-  SDL_Rect player_rect = {
-    player.x,
-    player.y,
-    PLAYER_WIDTH,
-    PLAYER_HEIGHT
-  };
+  playerRender(renderer, spriteTexture);
 
-  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-  SDL_RenderFillRect(renderer, &player_rect);
-
+  if (showDebug) { 
+    SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+  }
   SDL_RenderPresent(renderer);
 
 }
@@ -200,11 +212,12 @@ int main(){
 
   if (initSDL()) { 
     cleanup();
+    return 1;
   }
 
   setupLevel();
 
-  while (shouldQuit != 1){
+  while (!shouldQuit){
   
     processInput();
     update();
