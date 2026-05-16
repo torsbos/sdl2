@@ -73,23 +73,24 @@ void playerRender(SDL_Renderer *renderer, SDL_Texture *texture) {
     PLAYER_HEIGHT
   };
 
-  int frame = (SDL_GetTicks() / 200) % 2;
+  int frameTwo = (SDL_GetTicks() / 200) % 2;
+  int frameFour = (SDL_GetTicks() / 100) % 4;
 
   SDL_Rect spriteRectIdle = {
-    frame * (TILE / 2),
+    frameTwo * (TILE / 2),
     0,
     (TILE / 2),
     TILE
   };
 
   SDL_Rect spriteRectWalkX = {
-    frame * (TILE / 2),
+    frameFour * (TILE / 2),
     TILE,
     (TILE / 2),
     TILE
   };
   SDL_Rect spriteRectWalkY = {
-    frame * (TILE / 2) + TILE,
+    frameTwo * (TILE / 2) + TILE,
     0,
     (TILE / 2),
     TILE
