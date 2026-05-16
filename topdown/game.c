@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <time.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
 #include "player.h"
 #include "config.h"
-
+#include "rain.h"
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -21,7 +22,6 @@ SDL_Surface *spriteSurface = NULL;
 
 bool shouldQuit = false;
 bool showDebug = false;
-
 
 bool initSDL(){
 
@@ -97,25 +97,28 @@ void updateDebugText() {
     );
 
     SDL_Surface* textSurface =
-        TTF_RenderText_Solid(textFont, buffer, textColor);
+      TTF_RenderText_Solid(textFont, buffer, textColor);
 
     if (!textSurface) {
-        fprintf(stderr, "Text surface error: %s\n", TTF_GetError());
-        return;
+      fprintf(stderr, "Text surface error: %s\n", TTF_GetError());
+      return;
+    }
+
+
+    SDL_Texture* newTextTexture =
+      SDL_CreateTextureFromSurface(renderer, textSurface);
+
+    if (!newTextTexture) {
+      fprintf(stderr, "Texture error: %s\n", SDL_GetError());
+      SDL_FreeSurface(textSurface);
+      return;
     }
 
     if (textTexture) {
-        SDL_DestroyTexture(textTexture);
+      SDL_DestroyTexture(textTexture);
     }
 
-    textTexture =
-        SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    if (!textTexture) {
-        fprintf(stderr, "Texture error: %s\n", SDL_GetError());
-        SDL_FreeSurface(textSurface);
-        return;
-    }
+    textTexture = newTextTexture;
 
     textRect.x = 20;
     textRect.y = 20;
@@ -143,6 +146,8 @@ void setupLevel(){
   // TODO: add tilemap?
 
   playerSetup();
+
+  rainInit();
 
 }
 
@@ -172,17 +177,20 @@ void processInput(){
   playerInput(state);
 }
 
-
 void update(){
   // TODO: collision detection, on other objects 
-  // TODO: collision on tilemap?
+  // collision on tilemap?
+  // deltatime
+  // weather effect
 
 
   //player movement and collision
 
   playerUpdate(); 
 
-  
+  rainUpdate();
+
+ 
   // debug text
   if (showDebug) { updateDebugText(); }
   if (!showDebug && textTexture) {
@@ -195,20 +203,27 @@ void update(){
 
 void render(){
   // TODO: render tile map
+  // weather effect
 
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
   SDL_RenderClear(renderer);
 
   playerRender(renderer, spriteTexture);
 
+  rainRender(renderer);
+
   if (showDebug) { 
     SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
   }
+
+
   SDL_RenderPresent(renderer);
 
 }
 
 int main(){
+
+  srand(time(NULL));
 
   if (initSDL()) { 
     cleanup();

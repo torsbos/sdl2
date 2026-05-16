@@ -76,23 +76,23 @@ void playerRender(SDL_Renderer *renderer, SDL_Texture *texture) {
   int frame = (SDL_GetTicks() / 200) % 2;
 
   SDL_Rect spriteRectIdle = {
-    frame * 8,
+    frame * (TILE / 2),
     0,
-    8,
-    16
+    (TILE / 2),
+    TILE
   };
 
   SDL_Rect spriteRectWalkX = {
-    frame * 8,
-    16,
-    8,
-    16
+    frame * (TILE / 2),
+    TILE,
+    (TILE / 2),
+    TILE
   };
   SDL_Rect spriteRectWalkY = {
-    (frame * 8) + 16,
+    frame * (TILE / 2) + TILE,
     0,
-    8,
-    16
+    (TILE / 2),
+    TILE
   };
 
   if (player.moveUp || player.moveDown) {

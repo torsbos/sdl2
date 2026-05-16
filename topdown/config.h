@@ -10,5 +10,6 @@
 #define FPS               60
 
 #define FONT_SIZE         16
+#define TILE              16
 
 #endif
