@@ -1,5 +1,8 @@
+#include <SDL2/SDL_image.h>
 #include "player.h"
 #include "config.h"
+
+SDL_Texture *texture = NULL;
 
 Player player;
 
@@ -63,7 +66,7 @@ void playerUpdate(void) {
   }
 }
 
-void playerRender(SDL_Renderer *renderer, SDL_Texture *texture) {
+void playerRender(SDL_Renderer *renderer) {
   
 
   SDL_Rect playerRect = {
@@ -77,23 +80,23 @@ void playerRender(SDL_Renderer *renderer, SDL_Texture *texture) {
   int frameFour = (SDL_GetTicks() / 100) % 4;
 
   SDL_Rect spriteRectIdle = {
-    frameTwo * (TILE / 2),
+    frameTwo * (TILE_SIZE / 2),
     0,
-    (TILE / 2),
-    TILE
+    (TILE_SIZE / 2),
+    TILE_SIZE
   };
 
   SDL_Rect spriteRectWalkX = {
-    frameFour * (TILE / 2),
-    TILE,
-    (TILE / 2),
-    TILE
+    frameFour * (TILE_SIZE / 2) + (TILE_SIZE * 2),
+    0,
+    (TILE_SIZE / 2),
+    TILE_SIZE
   };
   SDL_Rect spriteRectWalkY = {
-    frameTwo * (TILE / 2) + TILE,
+    frameTwo * (TILE_SIZE / 2) + TILE_SIZE,
     0,
-    (TILE / 2),
-    TILE
+    (TILE_SIZE / 2),
+    TILE_SIZE
   };
 
   if (player.moveUp || player.moveDown) {
@@ -151,4 +154,50 @@ void playerRender(SDL_Renderer *renderer, SDL_Texture *texture) {
       SDL_FLIP_NONE
     );
   }
+}
+void playerCleanup() {
+
+    if (texture) {
+
+        SDL_DestroyTexture(
+            texture
+        );
+
+        texture = NULL;
+    }
+}
+
+bool playerLoad(SDL_Renderer *renderer) {
+
+    SDL_Surface *surface =
+        IMG_Load("player.png");
+
+    if (!surface) {
+
+        SDL_Log(
+            "Failed to load player.png: %s",
+            IMG_GetError()
+        );
+
+        return false;
+    }
+
+    texture =
+        SDL_CreateTextureFromSurface(
+            renderer,
+            surface
+        );
+
+    SDL_FreeSurface(surface);
+
+    if (!texture) {
+
+        SDL_Log(
+            "Failed to create player texture: %s",
+            SDL_GetError()
+        );
+
+        return false;
+    }
+    return true;
 }

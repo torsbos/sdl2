@@ -7,7 +7,7 @@
 #define PLAYER_WIDTH  32
 #define PLAYER_HEIGHT 64
 
-#define PLAYER_SPEED 2.4f
+#define PLAYER_SPEED 1.8f
 #define SPRINT_MULTIPLIER 1.4f
 
 typedef struct {
@@ -26,9 +26,11 @@ typedef struct {
 
 extern Player player;
 
-void playerSetup(void);
+bool playerLoad(SDL_Renderer *renderer);
+void playerSetup();
 void playerInput(const Uint8 *state);
-void playerUpdate(void);
-void playerRender(SDL_Renderer *renderer, SDL_Texture *texture);
+void playerUpdate();
+void playerRender(SDL_Renderer *renderer);
+void playerCleanup();
 
 #endif

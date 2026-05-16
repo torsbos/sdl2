@@ -6,6 +6,7 @@
 #include <SDL2/SDL_image.h>
 #include "player.h"
 #include "config.h"
+#include "map.h"
 #include "rain.h"
 
 SDL_Window *window = NULL;
@@ -15,10 +16,6 @@ TTF_Font *textFont = NULL;
 SDL_Texture *textTexture = NULL;
 SDL_Rect textRect;
 SDL_Color textColor = {255,255,255,255};
-
-SDL_Texture *spriteTexture = NULL;
-SDL_Surface *spriteSurface = NULL;
-
 
 bool shouldQuit = false;
 bool showDebug = false;
@@ -66,22 +63,15 @@ bool initSDL(){
     return true;
   }
 
-  spriteSurface = IMG_Load("sprite.png");
-  if (!spriteSurface) {
-    fprintf(stderr, "Error loading sprite to surface: %s\n", IMG_GetError());
+  if (!mapLoad(renderer)) {
     return true;
   }
 
-  spriteTexture = 
-    SDL_CreateTextureFromSurface(renderer, spriteSurface);
-  if (!spriteTexture) {
-    fprintf(stderr, "Error creating sprite texture from surface: %s\n", IMG_GetError());
+  if (!playerLoad(renderer)) {
     return true;
   }
 
-  SDL_FreeSurface(spriteSurface);
-
-return false;
+  return false;
 }
 
 void updateDebugText() {
@@ -133,9 +123,13 @@ void cleanup(){
 
   TTF_CloseFont(textFont);
   SDL_DestroyTexture(textTexture);
-  SDL_DestroyTexture(spriteTexture);
+
+  playerCleanup();
+  mapCleanup();
+
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
+
   TTF_Quit();
   IMG_Quit();
   SDL_Quit();
@@ -143,7 +137,6 @@ void cleanup(){
 }
 
 void setupLevel(){
-  // TODO: add tilemap?
 
   playerSetup();
 
@@ -181,7 +174,6 @@ void update(){
   // TODO: collision detection, on other objects 
   // collision on tilemap?
   // deltatime
-  // weather effect
 
 
   //player movement and collision
@@ -203,12 +195,13 @@ void update(){
 
 void render(){
   // TODO: render tile map
-  // weather effect
 
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
   SDL_RenderClear(renderer);
 
-  playerRender(renderer, spriteTexture);
+  mapRender(renderer);
+
+  playerRender(renderer);
 
   rainRender(renderer);
 
