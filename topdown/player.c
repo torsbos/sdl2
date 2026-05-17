@@ -24,7 +24,7 @@ void playerInput(const Uint8 *state) {
 
 }
 
-void playerUpdate(void) {
+void playerUpdate(float deltaTime) {
 
   float speed = PLAYER_SPEED;
 
@@ -33,45 +33,46 @@ void playerUpdate(void) {
   }
 
   if (player.moveUp) {
-    player.y -= speed;
+    player.y -= speed * deltaTime;
   }
 
   if (player.moveDown) {
-    player.y += speed;
+    player.y += speed * deltaTime;
   }
 
   if (player.moveLeft) {
     player.faceLeft = true;
-    player.x -= speed;
+    player.x -= speed * deltaTime;
   }
 
   if (player.moveRight) {
     player.faceLeft = false;
-    player.x += speed;
+    player.x += speed * deltaTime;
   }
 
   //border collision
 
-  if (player.y <= 0) {
-    player.y = 0;
-  }
-  if (player.y >= WINDOW_HEIGHT - PLAYER_HEIGHT) {
-    player.y = WINDOW_HEIGHT - PLAYER_HEIGHT;
-  }
-  if (player.x <= 0) {
+if (player.x < 0)
     player.x = 0;
-  }
-  if (player.x >= WINDOW_WIDTH - PLAYER_WIDTH) {
-    player.x = WINDOW_WIDTH - PLAYER_WIDTH;
-  }
+
+if (player.y < 0)
+    player.y = 0;
+
+if (player.x > MAP_WIDTH * TILE_RENDER_SIZE - PLAYER_WIDTH)
+    player.x = MAP_WIDTH * TILE_RENDER_SIZE - PLAYER_WIDTH;
+
+if (player.y > MAP_HEIGHT * TILE_RENDER_SIZE - PLAYER_HEIGHT)
+    player.y = MAP_HEIGHT * TILE_RENDER_SIZE - PLAYER_HEIGHT;
+
+
 }
 
-void playerRender(SDL_Renderer *renderer) {
+void playerRender(SDL_Renderer *renderer, SDL_Rect *camera) {
   
 
   SDL_Rect playerRect = {
-    player.x,
-    player.y,
+    player.x - camera->x,
+    player.y - camera->y,
     PLAYER_WIDTH,
     PLAYER_HEIGHT
   };

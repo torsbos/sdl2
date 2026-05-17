@@ -10,19 +10,13 @@ static SDL_Texture *tilesetTexture = NULL;
 static int tilesetWidth;
 static int tilesetHeight;
 
+//map array
 static int map[MAP_WIDTH * MAP_HEIGHT] = {
 
-  2,2,2,2,2,2,2,2,2,2,
-  2,2,2,2,2,2,2,2,2,2,
-  2,2,2,2,2,2,2,2,2,2,
-  2,2,2,2,2,2,2,2,2,2,
-  2,2,2,2,2,2,2,2,2,2,
-
-  2,2,2,2,2,2,2,2,2,2,
-  2,2,2,2,2,2,2,2,2,2,
-  2,2,2,2,2,2,2,2,2,2,
-  2,2,2,2,2,2,2,2,2,2,
-  2,2,2,2,2,2,2,2,2,2,
+  0,0,0,9,9,9,9,9,9,9,9,9,9,0,0,0,
+  0,0,0,9,9,9,9,9,9,9,9,9,9,0,0,0,
+  0,0,0,9,9,9,9,9,9,9,9,9,9,0,0,0,
+  0,0,0,9,9,9,9,9,9,9,9,9,9,0,0,0
 };
 
 bool mapLoad(SDL_Renderer *renderer) {
@@ -69,7 +63,7 @@ bool mapLoad(SDL_Renderer *renderer) {
     return true;
 }
 
-void mapRender(SDL_Renderer *renderer) {
+void mapRender(SDL_Renderer *renderer, SDL_Rect *camera) {
 
     int tilesPerRow =
         tilesetWidth / TILE_SIZE;
@@ -93,8 +87,8 @@ void mapRender(SDL_Renderer *renderer) {
 
             SDL_Rect dst = {
 
-                x * TILE_RENDER_SIZE,
-                y * TILE_RENDER_SIZE,
+                x * TILE_RENDER_SIZE - camera->x,
+                y * TILE_RENDER_SIZE - camera->y,
 
                 TILE_RENDER_SIZE,
                 TILE_RENDER_SIZE

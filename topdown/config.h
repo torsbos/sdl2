@@ -13,7 +13,7 @@
 #define TILE_SIZE         16
 #define TILE_SCALE        4
 #define TILE_RENDER_SIZE  (TILE_SIZE * TILE_SCALE)
-#define MAP_WIDTH         50
-#define MAP_HEIGHT        38
+#define MAP_WIDTH         16
+#define MAP_HEIGHT        16
 
 #endif

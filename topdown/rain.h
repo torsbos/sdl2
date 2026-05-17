@@ -4,7 +4,7 @@
 #include <SDL2/SDL.h>
 
 void rainInit();
-void rainUpdate();
+void rainUpdate(float deltaTime);
 void rainRender(SDL_Renderer *renderer);
 
 #define RAIN_COUNT 300

@@ -9,6 +9,31 @@
 #include "map.h"
 #include "rain.h"
 
+// TODO:
+
+// * only render tiles on screen
+// * enemy entity
+// * entity handler
+// * game objectives
+// * missions
+// * menu, titlescreen 
+// * level select
+// * spawn player and enemies through map files
+// * only render tiles on screen
+// * collision detection, on other objects 
+// * level editor
+
+// COMPLETE:
+
+// * player movement
+// * player animation
+// * tilemap generation
+// * deltatime
+// * rain engine
+// * debug text with player x,y and fps
+
+// GLOBAL DECLARATIONS
+
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 
@@ -17,8 +42,29 @@ SDL_Texture *textTexture = NULL;
 SDL_Rect textRect;
 SDL_Color textColor = {255,255,255,255};
 
+SDL_Rect camera = {
+    0,
+    0,
+    WINDOW_WIDTH,
+    WINDOW_HEIGHT
+};
+
+int worldWidth = MAP_WIDTH * TILE_RENDER_SIZE;
+int worldHeight = MAP_HEIGHT * TILE_RENDER_SIZE;
+
 bool shouldQuit = false;
 bool showDebug = false;
+
+float deltaTime = 0.0f;
+Uint32 lastFrameTime = 0;
+
+float currentFPS = 0.0f;
+float fpsTimer = 0.0f;
+int fpsFrames = 0;
+
+const int targetFrameTime = 1000 / FPS;
+
+// FUNCTIONS
 
 bool initSDL(){
 
@@ -74,6 +120,20 @@ bool initSDL(){
   return false;
 }
 
+void updateFPS() {
+
+  fpsTimer += deltaTime;
+  fpsFrames++;
+
+  if (fpsTimer >= 0.5f) {
+
+    currentFPS = fpsFrames / fpsTimer;
+
+    fpsFrames = 0;
+    fpsTimer = 0.0f;
+  }
+}
+
 void updateDebugText() {
 
     char buffer[128];
@@ -81,9 +141,10 @@ void updateDebugText() {
     snprintf(
         buffer,
         sizeof(buffer),
-        "X: %.0f  Y: %.0f",
+        "X: %.0f Y: %.0f FPS: %.0f",
         player.x,
-        player.y
+        player.y,
+        currentFPS
     );
 
     SDL_Surface* textSurface =
@@ -93,7 +154,6 @@ void updateDebugText() {
       fprintf(stderr, "Text surface error: %s\n", TTF_GetError());
       return;
     }
-
 
     SDL_Texture* newTextTexture =
       SDL_CreateTextureFromSurface(renderer, textSurface);
@@ -170,38 +230,58 @@ void processInput(){
   playerInput(state);
 }
 
+void cameraUpdate(){
+
+  //camera follow player, dont scroll past edge
+  camera.x = (int)(player.x - WINDOW_WIDTH / 2);
+  camera.y = (int)(player.y - WINDOW_HEIGHT / 2);
+
+  if (camera.x < 0) {
+    camera.x = 0;
+  }
+  if (camera.y < 0) {
+    camera.y = 0;
+  }
+  if (camera.x > worldWidth - WINDOW_WIDTH) {
+    camera.x = worldWidth - WINDOW_WIDTH;
+  }
+  if (camera.y > worldHeight - WINDOW_HEIGHT) {
+    camera.y = worldHeight - WINDOW_HEIGHT;
+  }
+
+  if (worldWidth < WINDOW_WIDTH)
+    camera.x = 0;
+
+  if (worldHeight < WINDOW_HEIGHT)
+    camera.y = 0;
+}
+
 void update(){
-  // TODO: collision detection, on other objects 
-  // collision on tilemap?
-  // deltatime
 
 
-  //player movement and collision
+  playerUpdate(deltaTime); 
 
-  playerUpdate(); 
+  cameraUpdate();
 
-  rainUpdate();
-
+  rainUpdate(deltaTime);
  
-  // debug text
+  updateFPS();
+
   if (showDebug) { updateDebugText(); }
   if (!showDebug && textTexture) {
     SDL_DestroyTexture(textTexture);
     textTexture = NULL;
   }
-
-  SDL_Delay(1000 / FPS);
 }
 
 void render(){
-  // TODO: render tile map
 
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
   SDL_RenderClear(renderer);
 
-  mapRender(renderer);
+  mapRender(renderer, &camera);
 
-  playerRender(renderer);
+  playerRender(renderer, &camera);
 
   rainRender(renderer);
 
@@ -211,6 +291,28 @@ void render(){
 
 
   SDL_RenderPresent(renderer);
+
+}
+
+void calcDeltaTime(){
+
+  Uint32 currentTime = SDL_GetTicks();
+
+  deltaTime = (currentTime - lastFrameTime) / 1000.0f;
+  lastFrameTime = currentTime;
+
+  if (deltaTime > 0.0f) {
+    currentFPS = 1.0f / deltaTime;
+  }
+
+}
+
+void waitDeltaTime(Uint32 frameStart){
+
+  Uint32 frameTime = SDL_GetTicks() - frameStart;
+  if (frameTime < targetFrameTime) {
+    SDL_Delay(targetFrameTime - frameTime);
+  }
 
 }
 
@@ -225,14 +327,20 @@ int main(){
 
   setupLevel();
 
-  while (!shouldQuit){
-  
+  lastFrameTime = SDL_GetTicks();
+
+  while (!shouldQuit) {
+
+    Uint32 frameStart = SDL_GetTicks();
+
+    calcDeltaTime();
+
     processInput();
     update();
     render();
 
-  } 
-
+    waitDeltaTime(frameStart);
+  }
   cleanup();
   printf("All good!\n");
   return 0;

@@ -47,7 +47,7 @@ static void createSplash(float x, float y) {
           rand() % 2;
 
       splashes[i].vy =
-          -(2 + rand() % 1);
+          -(1 + rand() % 1);
 
       splashes[i].life = 20;
 
@@ -63,8 +63,8 @@ void rainInit() {
     rain[i].x = rand() % WINDOW_WIDTH;
     rain[i].y = rand() % WINDOW_HEIGHT;
 
-    rain[i].speed = 4 + rand() % 8;
-    rain[i].length = 5 + rand() % 15;
+    rain[i].speed = 200 + rand() % 400;
+    rain[i].length = 5 + rand() % 10;
 
     rain[i].targetY = 100 + rand() % (WINDOW_HEIGHT - 100);
   }
@@ -79,20 +79,21 @@ static void updateSplashes() {
       splashes[i].x += splashes[i].vx;
       splashes[i].y += splashes[i].vy;
 
-      splashes[i].vy += 0.15f;
+      splashes[i].vy += 0.05f;
 
       splashes[i].life--;
     }
   }
 }
 
-void rainUpdate() {
+void rainUpdate(float deltaTime) {
 
   for (int i = 0; i < RAIN_COUNT; i++) {
 
-    rain[i].y += rain[i].speed;
+    rain[i].y += rain[i].speed * deltaTime;
 
-    rain[i].x -= 0.9f;
+    //wind
+    rain[i].x -= 0.8f;
 
     if (rain[i].x < 0) {
       rain[i].x = WINDOW_WIDTH;
