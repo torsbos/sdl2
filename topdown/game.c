@@ -268,9 +268,11 @@ void update(){
   updateFPS();
 
   if (showDebug) { updateDebugText(); }
-  if (!showDebug && textTexture) {
-    SDL_DestroyTexture(textTexture);
-    textTexture = NULL;
+  else {
+    if (textTexture) {
+      SDL_DestroyTexture(textTexture);
+      textTexture = NULL;
+    }
   }
 }
 
