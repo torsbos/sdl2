@@ -3,12 +3,9 @@
 
 #include <stdbool.h>
 #include <SDL2/SDL.h>
+#include "config.h"
+#include "entity.h"
 
-#define PLAYER_WIDTH  32
-#define PLAYER_HEIGHT 64
-
-#define PLAYER_SPEED 150
-#define SPRINT_MULTIPLIER 4
 
 typedef struct {
 
@@ -29,8 +26,8 @@ extern Player player;
 bool playerLoad(SDL_Renderer *renderer);
 void playerSetup(int spawnX, int spawnY);
 void playerInput(const Uint8 *state);
-void playerUpdate(float deltaTime);
-void playerRender(SDL_Renderer *renderer, SDL_Rect *camera);
+void playerUpdate(Entity *e, float deltaTime);
+void playerRender(Entity *e, SDL_Renderer *renderer, SDL_Rect *camera);
 void playerCleanup();
 
 #endif

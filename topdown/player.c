@@ -1,12 +1,19 @@
 #include <SDL2/SDL_image.h>
-#include "player.h"
 #include "config.h"
 #include "map.h"
+#include "entity.h"
+#include "player.h"
 
 SDL_Texture *texture = NULL;
 
 Player player;
 
+
+typedef struct {
+  float speed;
+} PlayerData;
+
+// FUNCTIONS
 void playerSetup(int spawnX, int spawnY)
 {
   player.x = spawnX;
@@ -24,55 +31,43 @@ void playerInput(const Uint8 *state) {
 
 }
 
-void playerUpdate(float deltaTime) {
+void playerUpdate(Entity *e, float deltaTime) {
 
   float speed = PLAYER_SPEED;
 
-  if (player.sprinting) {
-    speed *= SPRINT_MULTIPLIER;
-  }
+  if (player.moveLeft) e->vx = -speed;
+  else if (player.moveRight) e->vx = speed;
+  else e->vx = 0;
 
-  if (player.moveUp) {
-    player.y -= speed * deltaTime;
-  }
+  if (player.moveUp) e->vy = -speed;
+  else if (player.moveDown) e->vy = speed;
+  else e->vy = 0;
 
-  if (player.moveDown) {
-    player.y += speed * deltaTime;
-  }
-
-  if (player.moveLeft) {
-    player.faceLeft = true;
-    player.x -= speed * deltaTime;
-  }
-
-  if (player.moveRight) {
-    player.faceLeft = false;
-    player.x += speed * deltaTime;
-  }
+  e->x += e->vx * deltaTime;
+  e->y += e->vy * deltaTime;
 
   //border collision
 
-if (player.x < 0)
-    player.x = 0;
+  if (e->x < 0)
+    e->x = 0;
 
-if (player.y < 0)
-    player.y = 0;
+  if (e->y < 0)
+    e->y = 0;
 
-if (player.x > MAP_WIDTH * TILE_RENDER_SIZE - PLAYER_WIDTH)
-    player.x = MAP_WIDTH * TILE_RENDER_SIZE - PLAYER_WIDTH;
+  if (e->x > MAP_WIDTH * TILE_RENDER_SIZE - PLAYER_WIDTH)
+    e->x = MAP_WIDTH * TILE_RENDER_SIZE - PLAYER_WIDTH;
 
-if (player.y > MAP_HEIGHT * TILE_RENDER_SIZE - PLAYER_HEIGHT)
-    player.y = MAP_HEIGHT * TILE_RENDER_SIZE - PLAYER_HEIGHT;
-
+  if (e->y > MAP_HEIGHT * TILE_RENDER_SIZE - PLAYER_HEIGHT)
+    e->y = MAP_HEIGHT * TILE_RENDER_SIZE - PLAYER_HEIGHT;
 
 }
 
-void playerRender(SDL_Renderer *renderer, SDL_Rect *camera) {
+void playerRender(Entity *e, SDL_Renderer *renderer, SDL_Rect *camera) {
   
 
   SDL_Rect playerRect = {
-    player.x - camera->x,
-    player.y - camera->y,
+    (int) (e->x - camera->x),
+    (int) (e->y - camera->y),
     PLAYER_WIDTH,
     PLAYER_HEIGHT
   };

@@ -9,6 +9,7 @@
 #include "map.h"
 #include "rain.h"
 #include "level.h"
+#include "entity.h"
 
 // TODO:
 
@@ -144,8 +145,8 @@ void updateDebugText() {
         buffer,
         sizeof(buffer),
         "X: %.0f Y: %.0f FPS: %.0f",
-        player.x,
-        player.y,
+        playerEntity->x,
+        playerEntity->y,
         currentFPS
     );
 
@@ -200,12 +201,13 @@ void cleanup(){
 
 void setupLevel(){
 
+  entityInit();
   levelLoad(&currentLevel, 0, renderer);
 
-  playerSetup(
-    currentLevel.map.playerSpawnX,
-    currentLevel.map.playerSpawnY
-  );
+//  playerSetup(
+//    currentLevel.map.playerSpawnX,
+//    currentLevel.map.playerSpawnY
+//  );
 
   rainInit();
 
@@ -240,8 +242,8 @@ void processInput(){
 void cameraUpdate(){
 
   //camera follow player, dont scroll past edge
-  camera.x = (int)(player.x - WINDOW_WIDTH / 2);
-  camera.y = (int)(player.y - WINDOW_HEIGHT / 2);
+  camera.x = playerEntity->x - (WINDOW_WIDTH / 2);
+  camera.y = playerEntity->y - (WINDOW_HEIGHT / 2);
 
   if (camera.x < 0) {
     camera.x = 0;
@@ -266,7 +268,7 @@ void cameraUpdate(){
 void update(){
 
 
-  playerUpdate(deltaTime); 
+  entityUpdateAll(deltaTime);
 
   cameraUpdate();
 
@@ -290,7 +292,7 @@ void render(){
 
   mapRender(&currentLevel.map, renderer, mapGetTileset(), &camera);
 
-  playerRender(renderer, &camera);
+  entityRenderAll(renderer, &camera);
 
   rainRender(renderer, &camera);
 
