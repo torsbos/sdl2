@@ -43,8 +43,7 @@ static void createSplash(float x, float y) {
       splashes[i].x = x;
       splashes[i].y = y;
 
-      splashes[i].vx =
-          rand() % 2;
+      splashes[i].vx = -1 + rand() % 3;
 
       splashes[i].vy =
           -(1 + rand() % 1);
@@ -60,13 +59,13 @@ void rainInit() {
 
   for (int i = 0; i < RAIN_COUNT; i++) {
 
-    rain[i].x = rand() % WINDOW_WIDTH;
-    rain[i].y = rand() % WINDOW_HEIGHT;
+    rain[i].x = rand() % WORLD_WIDTH;
+    rain[i].y = rand() % WORLD_HEIGHT;
 
     rain[i].speed = 200 + rand() % 400;
     rain[i].length = 5 + rand() % 10;
 
-    rain[i].targetY = 100 + rand() % (WINDOW_HEIGHT - 100);
+    rain[i].targetY = 100 + rand() % (WORLD_HEIGHT - 100);
   }
 }
 
@@ -93,10 +92,10 @@ void rainUpdate(float deltaTime) {
     rain[i].y += rain[i].speed * deltaTime;
 
     //wind
-    rain[i].x -= 0.8f;
+    rain[i].x -= 75.0f * deltaTime;
 
     if (rain[i].x < 0) {
-      rain[i].x = WINDOW_WIDTH;
+      rain[i].x = WORLD_WIDTH;
     }
 
     if (rain[i].y >= rain[i].targetY) {
@@ -109,17 +108,17 @@ void rainUpdate(float deltaTime) {
         );
       }
 
-      rain[i].x = rand() % WINDOW_WIDTH;
-      rain[i].y = -(rand() % WINDOW_HEIGHT);
+      rain[i].x = rand() % WORLD_WIDTH;
+      rain[i].y = -20;
 
-      rain[i].targetY = 100 + rand() % (WINDOW_HEIGHT - 100);
+      rain[i].targetY = 100 + rand() % (WORLD_HEIGHT - 100);
     }
   }
   updateSplashes();
 
 }
 
-static void renderSplashes(SDL_Renderer *renderer) {
+static void renderSplashes(SDL_Renderer *renderer, SDL_Rect *camera) {
 
   SDL_SetRenderDrawColor(
     renderer,
@@ -134,8 +133,8 @@ static void renderSplashes(SDL_Renderer *renderer) {
     if (splashes[i].life > 0) {
 
       SDL_Rect rect = {
-        (int)splashes[i].x,
-        (int)splashes[i].y,
+        (int) (splashes[i].x - camera->x ),
+        (int) (splashes[i].y - camera->y ),
         2,
         2
       };
@@ -145,29 +144,31 @@ static void renderSplashes(SDL_Renderer *renderer) {
   }
 }
 
-void rainRender(SDL_Renderer *renderer) {
+void rainRender(SDL_Renderer* renderer, SDL_Rect* camera)
+{
+  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
-  SDL_SetRenderDrawColor(
-    renderer,
-    255,
-    255,
-    255,
-    255
-  );
+  for (int i = 0; i < RAIN_COUNT; i++)
+  {
+    int screenX = (int)(rain[i].x - camera->x);
+    int screenY = (int)(rain[i].y - camera->y);
 
-  for (int i = 0; i < RAIN_COUNT; i++) {
+    // optional culling
+    if (screenX < 0 || screenX > WINDOW_WIDTH ||
+        screenY < 0 || screenY > WINDOW_HEIGHT)
+    {
+      continue;
+    }
 
     SDL_RenderDrawLine(
-
       renderer,
-
-      (int)rain[i].x,
-      (int)rain[i].y,
-
-      (int)rain[i].x - 2,
-      (int)(rain[i].y + rain[i].length)
+      screenX,
+      screenY,
+      screenX + -1,
+      screenY + rain[i].length
     );
   }
 
-  renderSplashes(renderer);
+  renderSplashes(renderer, camera);
+
 }

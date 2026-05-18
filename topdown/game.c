@@ -12,6 +12,7 @@
 // TODO:
 
 // * only render tiles on screen
+// * rain dont follow camera, camera xy/world xy separate?
 // * enemy entity
 // * entity handler
 // * game objectives
@@ -49,8 +50,6 @@ SDL_Rect camera = {
     WINDOW_HEIGHT
 };
 
-int worldWidth = MAP_WIDTH * TILE_RENDER_SIZE;
-int worldHeight = MAP_HEIGHT * TILE_RENDER_SIZE;
 
 bool shouldQuit = false;
 bool showDebug = false;
@@ -242,17 +241,17 @@ void cameraUpdate(){
   if (camera.y < 0) {
     camera.y = 0;
   }
-  if (camera.x > worldWidth - WINDOW_WIDTH) {
-    camera.x = worldWidth - WINDOW_WIDTH;
+  if (camera.x > WORLD_WIDTH - WINDOW_WIDTH) {
+    camera.x = WORLD_WIDTH - WINDOW_WIDTH;
   }
-  if (camera.y > worldHeight - WINDOW_HEIGHT) {
-    camera.y = worldHeight - WINDOW_HEIGHT;
+  if (camera.y > WORLD_HEIGHT - WINDOW_HEIGHT) {
+    camera.y = WORLD_HEIGHT - WINDOW_HEIGHT;
   }
 
-  if (worldWidth < WINDOW_WIDTH)
+  if (WORLD_WIDTH < WINDOW_WIDTH)
     camera.x = 0;
 
-  if (worldHeight < WINDOW_HEIGHT)
+  if (WORLD_HEIGHT < WINDOW_HEIGHT)
     camera.y = 0;
 }
 
@@ -285,7 +284,7 @@ void render(){
 
   playerRender(renderer, &camera);
 
-  rainRender(renderer);
+  rainRender(renderer, &camera);
 
   if (showDebug) { 
     SDL_RenderCopy(renderer, textTexture, NULL, &textRect);

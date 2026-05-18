@@ -5,7 +5,7 @@
 
 void rainInit();
 void rainUpdate(float deltaTime);
-void rainRender(SDL_Renderer *renderer);
+void rainRender(SDL_Renderer *renderer, SDL_Rect *camera);
 
 #define RAIN_COUNT 300
 #define SPLASH_COUNT 200
