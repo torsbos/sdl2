@@ -1,16 +1,15 @@
 #include <SDL2/SDL_image.h>
 #include "player.h"
 #include "config.h"
+#include "map.h"
 
 SDL_Texture *texture = NULL;
 
 Player player;
 
 void playerSetup(void) {
-
-  player.x = 400;
-  player.y = 300;
-
+  player.x = mapGetPlayerSpawnX();
+  player.y = mapGetPlayerSpawnY();
 }
 
 void playerInput(const Uint8 *state) {

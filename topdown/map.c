@@ -5,19 +5,32 @@
 #include "map.h"
 #include "config.h"
 
+static Map currentMap;
+
+Map *mapGetCurrent(void)
+{
+  return &currentMap;
+}
+
+int mapGetPlayerSpawnX(void)
+{
+  return currentMap.playerSpawnX;
+}
+
+int mapGetPlayerSpawnY(void)
+{
+  return currentMap.playerSpawnY;
+}
+
 static SDL_Texture *tilesetTexture = NULL;
+SDL_Texture *mapGetTileset(void)
+{
+  return tilesetTexture;
+}
 
 static int tilesetWidth;
 static int tilesetHeight;
 
-//map array
-static int map[MAP_WIDTH * MAP_HEIGHT] = {
-
-  0,0,0,9,9,9,9,9,9,9,9,9,9,0,0,0,
-  0,0,0,9,9,9,9,9,9,9,9,9,9,0,0,0,
-  0,0,0,9,9,9,9,9,9,9,9,9,9,0,0,0,
-  0,0,0,9,9,9,9,9,9,9,9,9,9,0,0,0
-};
 
 bool mapLoad(SDL_Renderer *renderer) {
 
@@ -50,55 +63,106 @@ bool mapLoad(SDL_Renderer *renderer) {
   return true;
 }
 
-void mapRender(SDL_Renderer *renderer, SDL_Rect *camera) {
+void mapBuild(Map *map, int *source, int w, int h)
+{
+  map->width = w;
+  map->height = h;
 
-  int tilesPerRow = tilesetWidth / TILE_SIZE;
+  int size = w * h;
 
-  for (int y = 0; y < MAP_HEIGHT; y++) {
+  map->tiles = malloc(sizeof(int) * size);
+  map->collision = malloc(sizeof(bool) * size);
 
-    for (int x = 0; x < MAP_WIDTH; x++) {
+  map->objects = malloc(sizeof(MapObject) * 256);
+  map->objectCount = 0;
 
-        int tileID = map[y * MAP_WIDTH + x];
+  for (int i = 0; i < size; i++) {
+    int t = source[i];
 
-        SDL_Rect src = {
+    // default
+    map->tiles[i] = 0;
+    map->collision[i] = false;
 
-          (tileID % tilesPerRow) * TILE_SIZE,
+    // OBJECTS (logic layer)
+    if (t == OBJECT_PLAYER_SPAWN) {
+      int x = i % w;
+      int y = i / w;
 
-          (tileID / tilesPerRow) * TILE_SIZE,
+      map->playerSpawnX = x * TILE_RENDER_SIZE;
+      map->playerSpawnY = y * TILE_RENDER_SIZE;
 
-          TILE_SIZE,
-          TILE_SIZE
-        };
+      continue;
+    }
 
-        SDL_Rect dst = {
+    if (t == OBJECT_ENEMY_SPAWN) {
+      MapObject obj = {
+        .x = (i % w) * TILE_RENDER_SIZE,
+        .y = (i / w) * TILE_RENDER_SIZE,
+        .type = OBJECT_ENEMY_SPAWN
+      };
 
-          x * TILE_RENDER_SIZE - camera->x,
-          y * TILE_RENDER_SIZE - camera->y,
+      map->objects[map->objectCount++] = obj;
+      continue;
+    }
 
-          TILE_RENDER_SIZE,
-          TILE_RENDER_SIZE
-        };
+    // TILE LAYER
+    map->tiles[i] = t;
 
-        // only render on screen tiles
-
-        if (
-          dst.x + dst.w < 0 ||
-          dst.x > WINDOW_WIDTH ||
-          dst.y + dst.h < 0 ||
-          dst.y > WINDOW_HEIGHT
-        )
-        {
-            continue;
-        }
-
-        SDL_RenderCopy(
-          renderer,
-          tilesetTexture,
-          &src,
-          &dst
-        );
+    // COLLISION LAYER
+    if (t == TILE_WALL) {
+      map->collision[i] = true;
     }
   }
+}
+
+void mapRender(Map *map, SDL_Renderer *renderer, SDL_Texture *tileset, SDL_Rect *camera)
+{
+  // int tilesPerRow = 16;
+  int tilesPerRow = tilesetWidth / TILE_SIZE;
+
+  for (int y = 0; y < map->height; y++) {
+    for (int x = 0; x < map->width; x++) {
+
+      int i = y * map->width + x;
+      int tile = map->tiles[i];
+
+      SDL_Rect dst = {
+        x * TILE_RENDER_SIZE - camera->x,
+        y * TILE_RENDER_SIZE - camera->y,
+        TILE_RENDER_SIZE,
+        TILE_RENDER_SIZE
+      };
+
+      if (dst.x + dst.w < 0 ||
+          dst.x > WINDOW_WIDTH ||
+          dst.y + dst.h < 0 ||
+          dst.y > WINDOW_HEIGHT) {
+        continue;
+      }
+
+      SDL_Rect src = {
+        (tile % tilesPerRow) * TILE_SIZE,
+        (tile / tilesPerRow) * TILE_SIZE,
+        TILE_SIZE,
+        TILE_SIZE
+      };
+
+      SDL_RenderCopy(renderer, tileset, &src, &dst);
+    }
+  }
+}
+
+bool mapIsSolid(Map *map, int x, int y)
+{
+  int tileX = x / TILE_RENDER_SIZE;
+  int tileY = y / TILE_RENDER_SIZE;
+
+  int i = tileY * map->width + tileX;
+
+  if (i < 0 || i >= map->width * map->height)
+    return true;
+
+  return map->collision[i];
 }
 
 void mapCleanup() {

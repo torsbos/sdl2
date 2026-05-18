@@ -11,8 +11,6 @@
 
 // TODO:
 
-// * only render tiles on screen
-// * rain dont follow camera, camera xy/world xy separate?
 // * enemy entity
 // * entity handler
 // * game objectives
@@ -32,6 +30,8 @@
 // * deltatime
 // * rain engine
 // * debug text with player x,y and fps
+// * only render tiles/rain on screen
+// * rain dont follow camera, camera xy/world xy separate?
 
 // GLOBAL DECLARATIONS
 
@@ -280,7 +280,8 @@ void render(){
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
   SDL_RenderClear(renderer);
 
-  mapRender(renderer, &camera);
+  Map *map = mapGetCurrent();
+  mapRender(map, renderer, mapGetTileset(), &camera);
 
   playerRender(renderer, &camera);
 
