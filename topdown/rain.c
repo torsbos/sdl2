@@ -153,9 +153,13 @@ void rainRender(SDL_Renderer* renderer, SDL_Rect* camera)
     int screenX = (int)(rain[i].x - camera->x);
     int screenY = (int)(rain[i].y - camera->y);
 
-    // optional culling
-    if (screenX < 0 || screenX > WINDOW_WIDTH ||
-        screenY < 0 || screenY > WINDOW_HEIGHT)
+    // only render on screen rain
+    if (
+      screenX < -rain[i].length ||
+      screenX > WINDOW_WIDTH + rain[i].length ||
+      screenY < -rain[i].length ||
+      screenY > WINDOW_HEIGHT + rain[i].length
+    )
     {
       continue;
     }
