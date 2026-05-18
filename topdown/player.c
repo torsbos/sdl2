@@ -7,9 +7,10 @@ SDL_Texture *texture = NULL;
 
 Player player;
 
-void playerSetup(void) {
-  player.x = mapGetPlayerSpawnX();
-  player.y = mapGetPlayerSpawnY();
+void playerSetup(int spawnX, int spawnY)
+{
+  player.x = spawnX;
+  player.y = spawnY;
 }
 
 void playerInput(const Uint8 *state) {

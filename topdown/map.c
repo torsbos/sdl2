@@ -5,33 +5,17 @@
 #include "map.h"
 #include "config.h"
 
-static Map currentMap;
-
-Map *mapGetCurrent(void)
-{
-  return &currentMap;
-}
-
-int mapGetPlayerSpawnX(void)
-{
-  return currentMap.playerSpawnX;
-}
-
-int mapGetPlayerSpawnY(void)
-{
-  return currentMap.playerSpawnY;
-}
-
+// STATIC
+static int tilesetWidth;
+static int tilesetHeight;
 static SDL_Texture *tilesetTexture = NULL;
+
+// GETTERS
 SDL_Texture *mapGetTileset(void)
 {
   return tilesetTexture;
 }
-
-static int tilesetWidth;
-static int tilesetHeight;
-
-
+// FUNCTIONS
 bool mapLoad(SDL_Renderer *renderer) {
 
   SDL_Surface *surface = IMG_Load("tiles.png");
@@ -63,7 +47,7 @@ bool mapLoad(SDL_Renderer *renderer) {
   return true;
 }
 
-void mapBuild(Map *map, int *source, int w, int h)
+void mapBuild(Map *map, int *source, int w, int h, SDL_Renderer *renderer)
 {
   map->width = w;
   map->height = h;

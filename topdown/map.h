@@ -44,3 +44,5 @@ int mapGetPlayerSpawnX(void);
 int mapGetPlayerSpawnY(void);
 
 Map *mapGetCurrent(void);
+
+void mapBuild(Map *map, int *source, int w, int h, SDL_Renderer *renderer);

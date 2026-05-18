@@ -27,7 +27,7 @@ typedef struct {
 extern Player player;
 
 bool playerLoad(SDL_Renderer *renderer);
-void playerSetup();
+void playerSetup(int spawnX, int spawnY);
 void playerInput(const Uint8 *state);
 void playerUpdate(float deltaTime);
 void playerRender(SDL_Renderer *renderer, SDL_Rect *camera);

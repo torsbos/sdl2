@@ -8,6 +8,7 @@
 #include "config.h"
 #include "map.h"
 #include "rain.h"
+#include "level.h"
 
 // TODO:
 
@@ -34,6 +35,8 @@
 // * rain dont follow camera, camera xy/world xy separate?
 
 // GLOBAL DECLARATIONS
+
+static Level currentLevel;
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -197,7 +200,12 @@ void cleanup(){
 
 void setupLevel(){
 
-  playerSetup();
+  levelLoad(&currentLevel, 0, renderer);
+
+  playerSetup(
+    currentLevel.map.playerSpawnX,
+    currentLevel.map.playerSpawnY
+  );
 
   rainInit();
 
@@ -280,8 +288,7 @@ void render(){
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
   SDL_RenderClear(renderer);
 
-  Map *map = mapGetCurrent();
-  mapRender(map, renderer, mapGetTileset(), &camera);
+  mapRender(&currentLevel.map, renderer, mapGetTileset(), &camera);
 
   playerRender(renderer, &camera);
 
