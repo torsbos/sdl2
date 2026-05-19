@@ -34,11 +34,11 @@ bool levelLoad(Level *level, int id, SDL_Renderer *renderer)
   //mapBuild(&level->map, data, w, h, renderer);
   mapBuild(&level->map, data, MAP_WIDTH, MAP_HEIGHT, renderer);
 
-  Entity *player = entityCreate();
-  player->x = level->map.playerSpawnX;
-  player->y = level->map.playerSpawnY;
-  player->update = playerUpdate;
-  player->render = playerRender;
+
+  playerCreate(
+    level->map.playerSpawnX,
+    level->map.playerSpawnY
+  );
 
   return true;
 }

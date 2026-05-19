@@ -21,11 +21,9 @@ typedef struct {
 
 } Player;
 
-extern Player player;
-
+Entity *playerCreate(float x, float y);
 bool playerLoad(SDL_Renderer *renderer);
-void playerSetup(int spawnX, int spawnY);
-void playerInput(const Uint8 *state);
+void playerInput(Entity *e, const Uint8 *state);
 void playerUpdate(Entity *e, float deltaTime);
 void playerRender(Entity *e, SDL_Renderer *renderer, SDL_Rect *camera);
 void playerCleanup();

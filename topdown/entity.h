@@ -19,6 +19,9 @@ struct Entity {
   float x, y;
   float vx, vy;
 
+  int width;
+  int height;
+
   bool active;
 
   void *data;

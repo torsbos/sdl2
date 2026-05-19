@@ -1,4 +1,6 @@
 #include <SDL2/SDL_image.h>
+#include <stdlib.h>
+#include <string.h>
 #include "config.h"
 #include "map.h"
 #include "entity.h"
@@ -6,41 +8,73 @@
 
 SDL_Texture *texture = NULL;
 
-Player player;
-
 
 typedef struct {
-  float speed;
+
+    bool moveLeft;
+    bool moveRight;
+    bool moveUp;
+    bool moveDown;
+
+    bool sprinting;
+    bool faceLeft;
+
+    float speed;
+
 } PlayerData;
 
 // FUNCTIONS
-void playerSetup(int spawnX, int spawnY)
+
+Entity *playerCreate(float x, float y)
 {
-  player.x = spawnX;
-  player.y = spawnY;
+  Entity *e = entityCreate();
+
+  if (!e)
+      return NULL;
+
+  PlayerData *pd = malloc(sizeof(PlayerData));
+
+  memset(pd, 0, sizeof(PlayerData));
+
+  pd->speed = PLAYER_SPEED;
+
+  e->x = x;
+  e->y = y;
+
+  e->width = PLAYER_WIDTH;
+  e->height = PLAYER_HEIGHT;
+
+  e->data = pd;
+
+  e->update = playerUpdate;
+  e->render = playerRender;
+
+  playerEntity = e;
+
+  return e;
 }
 
-void playerInput(const Uint8 *state) {
+void playerInput(Entity *e, const Uint8 *state) {
 
-  player.moveUp    = state[SDL_SCANCODE_W];
-  player.moveDown  = state[SDL_SCANCODE_S];
-  player.moveLeft  = state[SDL_SCANCODE_A];
-  player.moveRight = state[SDL_SCANCODE_D];
+  PlayerData *pd = e->data;
 
-  player.sprinting = state[SDL_SCANCODE_LSHIFT];
+  pd->moveUp    = state[SDL_SCANCODE_W];
+  pd->moveDown  = state[SDL_SCANCODE_S];
+  pd->moveLeft  = state[SDL_SCANCODE_A];
+  pd->moveRight = state[SDL_SCANCODE_D];
 
 }
 
 void playerUpdate(Entity *e, float deltaTime) {
 
-  float speed = PLAYER_SPEED;
+  PlayerData *pd = e->data;
 
-  if (player.moveLeft) e->vx = -speed;
-  else if (player.moveRight) e->vx = speed;
+  if (pd->moveLeft) e->vx = -PLAYER_SPEED;
+  else if (pd->moveRight) e->vx = PLAYER_SPEED;
   else e->vx = 0;
 
-  if (player.moveUp) e->vy = -speed;
-  else if (player.moveDown) e->vy = speed;
+  if (pd->moveUp) e->vy = -PLAYER_SPEED;
+  else if (pd->moveDown) e->vy = PLAYER_SPEED;
   else e->vy = 0;
 
   e->x += e->vx * deltaTime;
@@ -95,7 +129,9 @@ void playerRender(Entity *e, SDL_Renderer *renderer, SDL_Rect *camera) {
     TILE_SIZE
   };
 
-  if (player.moveUp || player.moveDown) {
+  PlayerData *pd = e->data;
+
+  if (pd->moveUp || pd->moveDown) {
 
     SDL_RenderCopy(
       renderer,
@@ -103,7 +139,7 @@ void playerRender(Entity *e, SDL_Renderer *renderer, SDL_Rect *camera) {
       &spriteRectWalkY,
       &playerRect
     );
-  } else if (player.moveRight) {
+  } else if (pd->moveRight) {
 
     SDL_RenderCopyEx(
       renderer,
@@ -115,7 +151,7 @@ void playerRender(Entity *e, SDL_Renderer *renderer, SDL_Rect *camera) {
       SDL_FLIP_HORIZONTAL
     );
 
-  } else if (player.moveLeft) {
+  } else if (pd->moveLeft) {
 
     SDL_RenderCopyEx(
       renderer,
@@ -127,7 +163,7 @@ void playerRender(Entity *e, SDL_Renderer *renderer, SDL_Rect *camera) {
       SDL_FLIP_NONE
     );
 
-  } else if (!player.faceLeft && !player.moveLeft) {
+  } else if (!pd->faceLeft && !pd->moveLeft) {
 
     SDL_RenderCopyEx(
       renderer,

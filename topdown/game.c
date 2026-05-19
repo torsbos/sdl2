@@ -236,7 +236,7 @@ void processInput(){
   }
   const Uint8 *state = SDL_GetKeyboardState(NULL);
 
-  playerInput(state);
+  playerInput(playerEntity, state);
 }
 
 void cameraUpdate(){

@@ -27,10 +27,6 @@ Entity *entityCreate(void)
       e->update = NULL;
       e->render = NULL;
 
-      // assign player reference
-      if (playerEntity == NULL)
-        playerEntity = e;
-
       return e;
     }
   }
