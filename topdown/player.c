@@ -8,21 +8,6 @@
 
 SDL_Texture *texture = NULL;
 
-
-typedef struct {
-
-    bool moveLeft;
-    bool moveRight;
-    bool moveUp;
-    bool moveDown;
-
-    bool sprinting;
-    bool faceLeft;
-
-    float speed;
-
-} PlayerData;
-
 // FUNCTIONS
 
 Entity *playerCreate(float x, float y)

@@ -9,7 +9,7 @@
 
 typedef struct {
 
-  float x, y;
+  float speed;
 
   bool moveLeft;
   bool moveRight;
@@ -19,7 +19,7 @@ typedef struct {
   bool sprinting;
   bool faceLeft;
 
-} Player;
+} PlayerData;
 
 Entity *playerCreate(float x, float y);
 bool playerLoad(SDL_Renderer *renderer);
