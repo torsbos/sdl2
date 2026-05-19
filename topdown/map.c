@@ -9,12 +9,18 @@
 static int tilesetWidth;
 static int tilesetHeight;
 static SDL_Texture *tilesetTexture = NULL;
+static Map *currentMap = NULL;
 
 // GETTERS
 SDL_Texture *mapGetTileset(void)
 {
   return tilesetTexture;
 }
+Map *mapGetCurrent(void)
+{
+  return currentMap;
+}
+
 // FUNCTIONS
 bool mapLoad(SDL_Renderer *renderer) {
 
@@ -51,6 +57,7 @@ void mapBuild(Map *map, int *source, int w, int h, SDL_Renderer *renderer)
 {
   map->width = w;
   map->height = h;
+  currentMap = map;
 
   int size = w * h;
 

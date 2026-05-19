@@ -62,22 +62,31 @@ void playerUpdate(Entity *e, float deltaTime) {
   else if (pd->moveDown) e->vy = PLAYER_SPEED;
   else e->vy = 0;
 
-  e->x += e->vx * deltaTime;
-  e->y += e->vy * deltaTime;
+  Map *map = mapGetCurrent();
 
-  //border collision
+  float nextX = e->x + e->vx * deltaTime;
 
-  if (e->x < 0)
-    e->x = 0;
+  if (!mapRectCollide(
+    map,
+    nextX,
+    e->y,
+    e->width,
+    e->height
+  )) {
+    e->x = nextX;
+  }
 
-  if (e->y < 0)
-    e->y = 0;
+  float nextY = e->y + e->vy * deltaTime;
 
-  if (e->x > MAP_WIDTH * TILE_RENDER_SIZE - PLAYER_WIDTH)
-    e->x = MAP_WIDTH * TILE_RENDER_SIZE - PLAYER_WIDTH;
-
-  if (e->y > MAP_HEIGHT * TILE_RENDER_SIZE - PLAYER_HEIGHT)
-    e->y = MAP_HEIGHT * TILE_RENDER_SIZE - PLAYER_HEIGHT;
+  if (!mapRectCollide(
+    map,
+    e->x,
+    nextY,
+    e->width,
+    e->height
+  )) {
+    e->y = nextY;
+  }
 
 }
 
