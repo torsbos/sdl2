@@ -22,8 +22,13 @@ Entity *entityCreate(void)
       e->active = true;
       e->x = 0;
       e->y = 0;
+
+      e->width = 0;
+      e->height = 0;
+
       e->vx = 0;
       e->vy = 0;
+
       e->update = NULL;
       e->render = NULL;
 

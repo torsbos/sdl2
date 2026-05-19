@@ -38,6 +38,17 @@ bool mapLoad(SDL_Renderer *renderer);
 
 void mapCleanup();
 
+
+bool mapIsSolid(Map *map, int x, int y);
+
+bool mapRectCollide(
+  Map *map,
+  float x,
+  float y,
+  int w,
+  int h
+);
+
 void mapRender(Map *map, SDL_Renderer *renderer, SDL_Texture *tileset, SDL_Rect *camera);
 
 int mapGetPlayerSpawnX(void);

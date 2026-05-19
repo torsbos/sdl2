@@ -141,12 +141,39 @@ bool mapIsSolid(Map *map, int x, int y)
   int tileX = x / TILE_RENDER_SIZE;
   int tileY = y / TILE_RENDER_SIZE;
 
+  if (
+    tileX < 0 ||
+    tileY < 0 ||
+    tileX >= map->width ||
+    tileY >= map->height
+  ) {
+    return true;
+  }
+
   int i = tileY * map->width + tileX;
 
-  if (i < 0 || i >= map->width * map->height)
-    return true;
-
   return map->collision[i];
+}
+
+bool mapRectCollide(
+  Map *map,
+  float x,
+  float y,
+  int w,
+  int h
+)
+{
+  int left = (int)x;
+  int right = (int)(x + w - 1);
+
+  int top = (int)y;
+  int bottom = (int)(y + h - 1);
+
+  return
+    mapIsSolid(map, left, top) ||
+    mapIsSolid(map, right, top) ||
+    mapIsSolid(map, left, bottom) ||
+    mapIsSolid(map, right, bottom);
 }
 
 void mapCleanup() {
