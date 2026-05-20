@@ -145,17 +145,17 @@ void mapRender(Map *map, SDL_Renderer *renderer, SDL_Texture *tileset, SDL_Rect 
 
 bool mapIsSolid(Map *map, int x, int y)
 {
-  int tileX = x / TILE_RENDER_SIZE;
-  int tileY = y / TILE_RENDER_SIZE;
-
   if (
-    tileX < 0 ||
-    tileY < 0 ||
-    tileX >= map->width ||
-    tileY >= map->height
+    x < 0 ||
+    y < 0 ||
+    x >= map->width * TILE_RENDER_SIZE ||
+    y >= map->height * TILE_RENDER_SIZE
   ) {
     return true;
   }
+
+  int tileX = x / TILE_RENDER_SIZE;
+  int tileY = y / TILE_RENDER_SIZE;
 
   int i = tileY * map->width + tileX;
 
