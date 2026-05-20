@@ -29,6 +29,8 @@ Entity *entityCreate(void)
       e->vx = 0;
       e->vy = 0;
 
+      e->type = ENTITY_PLAYER;
+
       e->update = NULL;
       e->render = NULL;
 

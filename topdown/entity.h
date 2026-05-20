@@ -24,6 +24,8 @@ struct Entity {
 
   bool active;
 
+  EntityType type;
+
   void *data;
 
   EntityUpdateFn update;
