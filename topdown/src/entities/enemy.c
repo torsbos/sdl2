@@ -6,9 +6,16 @@
 #include "config.h"
 #include "player.h"
 
+typedef enum {
+  ENEMY_IDLE,
+  ENEMY_PATROL
+} EnemyState;
+
 typedef struct {
   float speed;
   int direction;
+  EnemyState state;
+  float idleTimer;
 } EnemyData;
 
 static bool rectOverlap(
@@ -39,6 +46,9 @@ Entity *enemyCreate(float x, float y)
 
   EnemyData *data = malloc(sizeof(EnemyData));
 
+  data->state = ENEMY_PATROL;
+  data->idleTimer = 0.0f;
+
   data->speed = 50.0f;
   data->direction = 1;
 
@@ -64,7 +74,28 @@ void enemyUpdate(Entity *e, float deltaTime)
 
   Map *map = mapGetCurrent();
 
-  e->vx = data->speed * data->direction;
+  switch (data->state) {
+
+    case ENEMY_IDLE:
+
+      e->vx = 0;
+
+      data->idleTimer -= deltaTime;
+
+      if (data->idleTimer <= 0) {
+
+        data->state = ENEMY_PATROL;
+      }
+
+      break;
+
+    case ENEMY_PATROL:
+
+      e->vx =
+        data->speed * data->direction;
+
+      break;
+  }
 
   float nextX = e->x + e->vx * deltaTime;
 
@@ -81,6 +112,11 @@ void enemyUpdate(Entity *e, float deltaTime)
   } else {
 
     data->direction *= -1;
+
+    data->state = ENEMY_IDLE;
+
+    data->idleTimer = 1.0f;
+
   }
 
   if (
