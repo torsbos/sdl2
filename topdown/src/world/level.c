@@ -32,7 +32,6 @@ bool levelLoad(Level *level, int id, SDL_Renderer *renderer)
   if (!data)
     return false;
 
-  //mapBuild(&level->map, data, w, h, renderer);
   mapBuild(&level->map, data, MAP_WIDTH, MAP_HEIGHT, renderer);
 
 

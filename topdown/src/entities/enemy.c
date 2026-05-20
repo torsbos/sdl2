@@ -4,11 +4,30 @@
 #include "enemy.h"
 #include "map.h"
 #include "config.h"
+#include "player.h"
 
 typedef struct {
   float speed;
   int direction;
 } EnemyData;
+
+static bool rectOverlap(
+  float x1,
+  float y1,
+  int w1,
+  int h1,
+  float x2,
+  float y2,
+  int w2,
+  int h2
+)
+{
+  return
+    x1 < x2 + w2 &&
+    x1 + w1 > x2 &&
+    y1 < y2 + h2 &&
+    y1 + h1 > y2;
+}
 
 Entity *enemyCreate(float x, float y)
 {
@@ -63,6 +82,25 @@ void enemyUpdate(Entity *e, float deltaTime)
 
     data->direction *= -1;
   }
+
+  if (
+    playerEntity &&
+    rectOverlap(
+      e->x,
+      e->y,
+      e->width,
+      e->height,
+
+      playerEntity->x,
+      playerEntity->y,
+      playerEntity->width,
+      playerEntity->height
+    )
+  ) {
+
+    SDL_Log("Enemy touched player");
+  }
+
 }
 
 void enemyRender(
