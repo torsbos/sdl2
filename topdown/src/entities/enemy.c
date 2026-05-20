@@ -6,9 +6,11 @@
 #include "config.h"
 #include "player.h"
 
+//TYPEDEF
 typedef enum {
   ENEMY_IDLE,
-  ENEMY_PATROL
+  ENEMY_PATROL,
+  ENEMY_CHASE
 } EnemyState;
 
 typedef struct {
@@ -16,8 +18,11 @@ typedef struct {
   int direction;
   EnemyState state;
   float idleTimer;
+  float visionRange;
+  float chaseSpeed;
 } EnemyData;
 
+//HELPERS
 static bool rectOverlap(
   float x1,
   float y1,
@@ -36,6 +41,12 @@ static bool rectOverlap(
     y1 + h1 > y2;
 }
 
+static float absf(float x)
+{
+  return x < 0 ? -x : x;
+}
+
+// FUNCTIONS
 Entity *enemyCreate(float x, float y)
 {
   Entity *e = entityCreate();
@@ -48,6 +59,9 @@ Entity *enemyCreate(float x, float y)
 
   data->state = ENEMY_PATROL;
   data->idleTimer = 0.0f;
+
+  data->visionRange = 250.0f;
+  data->chaseSpeed = 120.0f;
 
   data->speed = 50.0f;
   data->direction = 1;
@@ -72,6 +86,23 @@ void enemyUpdate(Entity *e, float deltaTime)
 {
   EnemyData *data = e->data;
 
+  if (playerEntity) {
+
+    float dx =
+      playerEntity->x - e->x;
+
+    float dy =
+      playerEntity->y - e->y;
+
+    if (
+      absf(dx) < data->visionRange &&
+      absf(dy) < 80
+    ) {
+
+      data->state = ENEMY_CHASE;
+    }
+  }
+
   Map *map = mapGetCurrent();
 
   switch (data->state) {
@@ -95,6 +126,37 @@ void enemyUpdate(Entity *e, float deltaTime)
         data->speed * data->direction;
 
       break;
+
+    case ENEMY_CHASE:
+
+      if (!playerEntity) {
+        break;
+      }
+
+      float dx =
+        playerEntity->x - e->x;
+
+      if (absf(dx) > data->visionRange * 1.5f) {
+
+        data->state = ENEMY_PATROL;
+
+        break;
+      }
+
+      if (dx > 0) {
+
+        data->direction = 1;
+
+      } else {
+
+        data->direction = -1;
+      }
+
+      e->vx =
+        data->chaseSpeed * data->direction;
+
+      break;
+
   }
 
   float nextX = e->x + e->vx * deltaTime;
