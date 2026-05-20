@@ -20,6 +20,7 @@ typedef struct {
   float idleTimer;
   float visionRange;
   float chaseSpeed;
+  float attackCooldown;
 } EnemyData;
 
 //HELPERS
@@ -60,10 +61,12 @@ Entity *enemyCreate(float x, float y)
   data->state = ENEMY_PATROL;
   data->idleTimer = 0.0f;
 
-  data->visionRange = 250.0f;
-  data->chaseSpeed = 120.0f;
+  data->visionRange = ENEMY_VISION_RANGE;
+  data->chaseSpeed = ENEMY_CHASE_SPEED;
 
-  data->speed = 50.0f;
+  data->attackCooldown = 0.0f;
+
+  data->speed = ENEMY_SPEED;
   data->direction = 1;
 
   e->x = x;
@@ -71,6 +74,9 @@ Entity *enemyCreate(float x, float y)
 
   e->width = PLAYER_WIDTH;
   e->height = PLAYER_HEIGHT;
+
+  e->health = ENEMY_HEALTH;
+  e->maxHealth = ENEMY_MAXHEALTH;
 
   e->type = ENTITY_ENEMY;
 
@@ -85,6 +91,11 @@ Entity *enemyCreate(float x, float y)
 void enemyUpdate(Entity *e, float deltaTime)
 {
   EnemyData *data = e->data;
+
+  if (data->attackCooldown > 0) {
+
+    data->attackCooldown -= deltaTime;
+  }
 
   if (playerEntity) {
 
@@ -196,7 +207,18 @@ void enemyUpdate(Entity *e, float deltaTime)
     )
   ) {
 
-    SDL_Log("Enemy touched player");
+      if (data->attackCooldown <= 0) {
+
+        entityDamage(playerEntity, 1);
+
+        SDL_Log(
+          "Player health: %d",
+          playerEntity->health
+        );
+
+        data->attackCooldown = 1.0f;
+      }
+
   }
 
 }

@@ -18,11 +18,18 @@
 #define WORLD_WIDTH       MAP_WIDTH * TILE_RENDER_SIZE
 #define WORLD_HEIGHT      MAP_HEIGHT * TILE_RENDER_SIZE
 
-#define MAX_ENTITIES 256
+#define MAX_ENTITIES      256
 
-#define PLAYER_WIDTH  32
-#define PLAYER_HEIGHT 64
-#define PLAYER_SPEED 150
-#define SPRINT_MULTIPLIER 4
+#define PLAYER_WIDTH      32
+#define PLAYER_HEIGHT     64
+#define PLAYER_SPEED      150.0f
+#define PLAYER_HEALTH     5 
+#define PLAYER_MAXHEALTH  5 
+
+#define ENEMY_SPEED      50.0f
+#define ENEMY_CHASE_SPEED       120.0f
+#define ENEMY_VISION_RANGE      250.0f
+#define ENEMY_HEALTH      1 
+#define ENEMY_MAXHEALTH   1 
 
 #endif

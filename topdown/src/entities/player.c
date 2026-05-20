@@ -29,6 +29,9 @@ Entity *playerCreate(float x, float y)
   e->width = PLAYER_WIDTH;
   e->height = PLAYER_HEIGHT;
 
+  e->health = PLAYER_HEALTH;
+  e->maxHealth = PLAYER_MAXHEALTH;
+
   e->data = pd;
 
   e->update = playerUpdate;
@@ -53,6 +56,14 @@ void playerInput(Entity *e, const Uint8 *state) {
 void playerUpdate(Entity *e, float deltaTime) {
 
   PlayerData *pd = e->data;
+
+  if (!e->active) {
+
+    e->vx = 0;
+    e->vy = 0;
+
+    return;
+  }
 
   if (pd->moveLeft) e->vx = -PLAYER_SPEED;
   else if (pd->moveRight) e->vx = PLAYER_SPEED;

@@ -28,6 +28,9 @@ Entity *entityCreate(void)
 
       e->vx = 0;
       e->vy = 0;
+      
+      e->health = 1;
+      e->maxHealth = 1;
 
       e->type = ENTITY_PLAYER;
 
@@ -39,6 +42,22 @@ Entity *entityCreate(void)
   }
 
   return NULL;
+}
+
+void entityDamage(Entity *e, int damage)
+{
+  if (!e || !e->active) {
+    return;
+  }
+
+  e->health -= damage;
+
+  if (e->health <= 0) {
+
+    e->health = 0;
+
+    e->active = false;
+  }
 }
 
 void entityUpdateAll(float dt)

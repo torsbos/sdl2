@@ -21,6 +21,9 @@ struct Entity {
 
   int width;
   int height;
+  
+  int health;
+  int maxHealth;
 
   bool active;
 
@@ -35,5 +38,6 @@ struct Entity {
 
 void entityInit(void);
 Entity *entityCreate(void);
+void entityDamage(Entity *e, int damage);
 void entityUpdateAll(float deltaTime);
 void entityRenderAll(SDL_Renderer *renderer, SDL_Rect *camera);
