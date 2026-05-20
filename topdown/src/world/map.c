@@ -24,7 +24,7 @@ Map *mapGetCurrent(void)
 // FUNCTIONS
 bool mapLoad(SDL_Renderer *renderer) {
 
-  SDL_Surface *surface = IMG_Load("tiles.png");
+  SDL_Surface *surface = IMG_Load(ASSET_TEXTURES "tiles.png");
   if (!surface) {
     SDL_Log(
       "Failed to load tiles.png: %s",

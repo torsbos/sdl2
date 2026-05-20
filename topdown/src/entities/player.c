@@ -196,7 +196,7 @@ void playerCleanup() {
 bool playerLoad(SDL_Renderer *renderer) {
 
     SDL_Surface *surface =
-        IMG_Load("player.png");
+        IMG_Load(ASSET_TEXTURES "player.png");
 
     if (!surface) {
 

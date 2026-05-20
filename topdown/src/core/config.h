@@ -6,6 +6,9 @@
 #define WINDOW_HEIGHT     600
 #define FPS               60
 
+#define ASSET_TEXTURES    "assets/textures/"
+#define ASSET_FONTS       "assets/fonts/"
+
 #define FONT_SIZE         16
 #define TILE_SIZE         16
 #define TILE_SCALE        4

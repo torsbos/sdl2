@@ -100,7 +100,7 @@ bool initSDL(){
     return true;
   }
 
-  textFont = TTF_OpenFont("regular.ttf", FONT_SIZE);
+  textFont = TTF_OpenFont(ASSET_FONTS "regular.ttf", FONT_SIZE);
   if (!textFont) {
     fprintf(stderr, "Error loading font: %s\n", TTF_GetError());
     return true;
