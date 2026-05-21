@@ -9,6 +9,7 @@ SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 
 bool shouldQuit = false;
+float dt = 0;
 
 void initSDL(){
 
@@ -39,6 +40,8 @@ void setupLevel(){
   // TODO: 
   // * tilemap
   // * not hardcode level data
+  // * entity handler
+  // * multiple level support
 
   playerSetup();
 
@@ -72,14 +75,13 @@ void processInput(){
 
 void update(){
   // TODO:
-  // * collision detection, on other objects 
-  // * collision on tilemap?
-  // * debug text 
   // * deltatime
+  // * framecap
+  // * collision
+  // * debug text 
 
-  playerUpdate();
+  playerUpdate(dt);
   
-  SDL_Delay(1000 / FPS);
 }
 
 void render(){
@@ -101,11 +103,18 @@ int main(){
   initSDL();
   setupLevel();
 
+  Uint32 last = SDL_GetTicks();
   while (!shouldQuit){
+
+    Uint32 now = SDL_GetTicks();
   
     processInput();
     update();
     render();
+
+    dt = (now - last) * 0.001f;
+    last = now;
+    SDL_Delay(dt);
 
   } 
 

@@ -29,7 +29,7 @@ void playerInput(const Uint8 *state){
 
 }
 
-void playerUpdate() {
+void playerUpdate(float dt) {
 
   //movement 
   player.vx = 0;
@@ -39,25 +39,25 @@ void playerUpdate() {
     player.faceLeft = true;
     player.faceRight = false;
 
-    player.vx = -PLAYER_SPEED;
+    player.vx = -PLAYER_SPEED * dt;
   }
   if (player.moveRight) {
     player.faceLeft = false;
     player.faceRight = true;
 
-    player.vx = +PLAYER_SPEED;
+    player.vx = +PLAYER_SPEED * dt;
   }
   if (player.moveUp) {
     player.faceUp = true;
     player.faceDown = false;
 
-    player.vy = -PLAYER_SPEED;
+    player.vy = -PLAYER_SPEED * dt;
   }
   if (player.moveDown) {
     player.faceUp = false;
     player.faceDown = true;
 
-    player.vy = +PLAYER_SPEED;
+    player.vy = +PLAYER_SPEED * dt;
   }
 
   player.x += player.vx;
@@ -94,4 +94,6 @@ void playerRender(SDL_Renderer *renderer) {
 
 }
 
-void playerCleanup() {}
+void playerCleanup() {
+
+}

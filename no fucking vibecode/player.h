@@ -9,7 +9,7 @@
 
 void playerSetup();
 void playerInput(const Uint8 *state);
-void playerUpdate();
+void playerUpdate(float dt);
 void playerRender(SDL_Renderer *renderer);
 void playerCleanup();
 
