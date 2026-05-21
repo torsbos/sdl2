@@ -12,6 +12,7 @@ bool shouldQuit = false;
 float dt = 0;
 Uint64 last = 0;
 Uint64 now = 0;
+const float targetFPS = 1000 / FPS;
 
 bool initSDL(){
 
@@ -86,17 +87,16 @@ void processInput(){
 
 void update(){
   // TODO:
-  // * framecap
   // * collision
   // * debug text 
 
-  
+  //delta time
   now = SDL_GetTicks();
   dt = (now - last) * 0.001f;
   last = now;
-  SDL_Log("%f", dt);
+  if (dt > 0.03)
+    dt = 0.03;
   
-
   playerUpdate(dt);
   
 }
@@ -113,6 +113,13 @@ void render(){
 
   SDL_RenderPresent(renderer);
 
+}
+
+void tick(){
+
+  if (dt < targetFPS) {
+    SDL_Delay(targetFPS - dt);
+  } 
 }
 
 int main(){
@@ -133,8 +140,7 @@ int main(){
     update();
     render();
 
-    SDL_Delay(dt);
-
+    tick();
   } 
 
   cleanup();
