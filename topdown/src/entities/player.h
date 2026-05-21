@@ -16,8 +16,10 @@ typedef struct {
   bool moveUp;
   bool moveDown;
 
-  bool sprinting;
   bool faceLeft;
+  bool faceRight;
+  bool faceUp;
+  bool faceDown;
 
 } PlayerData;
 
