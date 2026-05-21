@@ -67,7 +67,6 @@ void playerUpdate() {
 
   if (player.y <= 0) {
       player.y = 0;
-      player.vy = 0;
   }
 
   if (player.x <= 0) {
@@ -75,6 +74,9 @@ void playerUpdate() {
   }
   if (player.x >= WINDOW_WIDTH - PLAYER_WIDTH) {
       player.x = WINDOW_WIDTH - PLAYER_WIDTH;
+  }
+  if (player.y >= WINDOW_HEIGHT - PLAYER_HEIGHT) {
+      player.y = WINDOW_HEIGHT - PLAYER_HEIGHT;
   }
 
 }

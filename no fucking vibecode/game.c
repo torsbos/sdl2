@@ -75,6 +75,7 @@ void update(){
   // * collision detection, on other objects 
   // * collision on tilemap?
   // * debug text 
+  // * deltatime
 
   playerUpdate();
   
