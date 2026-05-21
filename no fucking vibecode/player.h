@@ -7,6 +7,7 @@
 #include "config.h"
 
 
+//bool playerLoad();
 void playerSetup();
 void playerInput(const Uint8 *state);
 void playerUpdate(float dt);

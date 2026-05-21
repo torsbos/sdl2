@@ -13,6 +13,8 @@ struct player {
 
 } player;
 
+//bool playerLoad(){}
+
 void playerSetup(){
 
   player.x = 40;

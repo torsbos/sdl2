@@ -10,8 +10,10 @@ SDL_Renderer *renderer = NULL;
 
 bool shouldQuit = false;
 float dt = 0;
+Uint64 last = 0;
+Uint64 now = 0;
 
-void initSDL(){
+bool initSDL(){
 
   SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -23,9 +25,18 @@ void initSDL(){
     WINDOW_HEIGHT,
     SDL_WINDOW_SHOWN
   );
+  if (!window) {
+    fprintf(stderr, "Error creating window: %s\n", SDL_GetError());
+    return true;
+  }
 
   renderer = SDL_CreateRenderer(window, -1, 0);
+  if (!renderer) {
+    fprintf(stderr, "Error creating renderer: %s\n", SDL_GetError());
+    return true;
+  }
 
+  return false;
 }
 
 void cleanup(){
@@ -75,10 +86,16 @@ void processInput(){
 
 void update(){
   // TODO:
-  // * deltatime
   // * framecap
   // * collision
   // * debug text 
+
+  
+  now = SDL_GetTicks();
+  dt = (now - last) * 0.001f;
+  last = now;
+  SDL_Log("%f", dt);
+  
 
   playerUpdate(dt);
   
@@ -101,19 +118,21 @@ void render(){
 int main(){
 
   initSDL();
+
+  if (initSDL()) {
+    cleanup();
+    printf("All bad!!!!\n");
+    return 1;
+  }
   setupLevel();
 
-  Uint32 last = SDL_GetTicks();
+  last = SDL_GetTicks();
   while (!shouldQuit){
 
-    Uint32 now = SDL_GetTicks();
-  
     processInput();
     update();
     render();
 
-    dt = (now - last) * 0.001f;
-    last = now;
     SDL_Delay(dt);
 
   } 
